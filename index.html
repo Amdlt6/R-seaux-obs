@@ -5,115 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portail Sécurisé OBS</title>
     <style>
-        :root { --obs-red: #c61d23; --dark: #1a1a1a; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
-        .logo { max-width: 130px; margin-bottom: 25px; }
-        h2 { font-size: 1.5em; color: var(--dark); margin-bottom: 8px; }
-        p { color: #666; font-size: 0.9em; margin-bottom: 25px; }
-
-        label { display: block; text-align: left; font-size: 0.85em; font-weight: bold; color: #444; margin-bottom: 5px; }
-        input, select, button { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; font-size: 15px; box-sizing: border-box; }
+        :root { --obs-red: #c61d23; --dark: #1a1a1a; --gray: #f4f4f9; --icon-color: #666; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--gray); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         
-        button { background: var(--obs-red); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+        .logo { max-width: 130px; margin-bottom: 20px; }
+        
+        /* Formulaire */
+        .input-group { position: relative; text-align: left; margin-bottom: 15px; }
+        label { display: block; font-size: 0.85em; font-weight: bold; color: #444; margin-bottom: 5px; }
+        input, select, button { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 15px; box-sizing: border-box; }
+        input#catPass { padding-right: 45px; }
+        
+        button { background: var(--obs-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         button:hover { background: #a5181d; transform: translateY(-1px); }
 
-        /* Carte de connexion finale */
-        #wifiCard { display: none; margin-top: 10px; padding: 25px; border: 2px solid var(--obs-red); border-radius: 15px; background: #fff; text-align: left; }
-        .wifi-header { font-weight: 800; color: var(--obs-red); border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .vlan-badge { background: var(--obs-red); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.75em; }
-        .label-small { color: #888; font-size: 0.7em; text-transform: uppercase; display: block; margin-top: 12px; }
-        .val { font-family: 'Monaco', monospace; font-weight: bold; color: var(--dark); font-size: 1.15em; display: block; padding: 5px 0; }
+        /* Oeil Mot de passe (Centré) */
+        .toggle-pass { position: absolute; right: 12px; top: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--icon-color); z-index: 10; }
+        .toggle-pass svg { width: 20px; height: 20px; }
+
+        /* Carte Wi-Fi Résultat */
+        #wifiCard { display: none; margin-top: 20px; padding: 25px; border: 2px solid var(--obs-red); border-radius: 15px; text-align: left; animation: fadeIn 0.4s; }
+        .wifi-row { margin-bottom: 15px; }
+        .label-small { color: #888; text-transform: uppercase; font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px; }
+        .value-text { font-family: 'Monaco', 'Consolas', monospace; color: var(--dark); font-size: 1.1em; }
         
-        .rights-grid { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; font-size: 0.8em; font-weight: 600; }
+        .copy-wrapper { display: flex; align-items: center; gap: 10px; }
+        .copy-icon-btn { background: none; border: none; padding: 5px; cursor: pointer; color: var(--icon-color); display: flex; width: auto; margin: 0; }
+        .copy-icon-btn:hover { color: var(--obs-red); transform: scale(1.1); }
+
+        /* Aide OS */
+        .help-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .os-selector { display: flex; justify-content: space-around; margin-bottom: 15px; gap: 10px; }
+        .os-btn { background: #eee; color: #333; padding: 10px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 1px solid transparent; width: 50%; text-align: center; font-weight: bold; }
+        .os-btn.active { border-color: var(--obs-red); background: #fff5f5; color: var(--obs-red); }
         
-        #errorMsg { color: var(--obs-red); font-size: 0.85em; display: none; margin-bottom: 15px; font-weight: bold; background: #fff5f5; padding: 10px; border-radius: 8px; }
+        .os-guide { display: none; text-align: center; background: #fafafa; padding: 10px; border-radius: 10px; font-size: 0.85em; }
+        .os-guide img { width: 100%; border-radius: 5px; margin-top: 8px; border: 1px solid #ddd; }
+
+        #errorMsg { color: var(--obs-red); font-size: 0.85em; display: none; padding: 10px; font-weight: bold; background: #fff5f5; border-radius: 8px; margin-bottom: 10px; }
+        #lockMsg { color: #721c24; background: #f8d7da; border-radius: 10px; padding: 15px; display: none; margin-bottom: 15px; font-weight: bold; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <img src="images.jpeg" alt="Logo OBS" class="logo">
-    
+    <div id="lockMsg"></div>
+
     <div id="authArea">
-        <h2>Portail d'Assistance</h2>
-        <p>Identifiez-vous pour récupérer vos paramètres.</p>
-
-        <div id="errorMsg">⚠️ Code de catégorie incorrect.</div>
-
+        <h2>Portail Wi-Fi</h2>
+        <div id="errorMsg"></div>
         <form id="obsSecureForm">
-            <label for="userType">Sélectionnez votre profil</label>
-            <select id="userType" required>
-                <option value="" disabled selected>-- Choisir --</option>
-                <option value="v10_compta">Comptabilité</option>
-                <option value="v10_admin">Administration</option>
-                <option value="v10_prof">Professeurs</option>
-                <option value="v20">Élèves / Étudiants</option>
-                <option value="v30">Locataires</option>
-            </select>
-            
-            <label for="catPass">Code d'accès catégorie</label>
-            <input type="password" id="catPass" placeholder="Entrez le code" required>
-            
+            <div class="input-group">
+                <label>Votre Catégorie</label>
+                <select id="userType" required>
+                    <option value="" disabled selected>-- Sélectionner --</option>
+                    <option value="v10">Administration / Profs</option>
+                    <option value="v20">Élèves / Étudiants</option>
+                    <option value="v30">Locataires / Public</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Code d'accès</label>
+                <input type="password" id="catPass" placeholder="Entrez le code catégorie" required>
+                <span class="toggle-pass" onclick="toggleVisibility()">
+                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+            </div>
             <button type="submit">Afficher les accès</button>
         </form>
     </div>
 
     <div id="wifiCard">
-        <div class="wifi-header">
-            <span>CONFIG RÉSEAU</span>
-            <span id="vlanTag" class="vlan-badge">VLAN --</span>
+        <div style="font-weight:bold; color:var(--obs-red); margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:5px">CONFIG RÉSEAU</div>
+        
+        <div class="wifi-row">
+            <span class="label-small">Nom du Réseau (SSID)</span>
+            <b id="resBox" class="value-text"></b>
+        </div>
+
+        <div class="wifi-row">
+            <span class="label-small">Mot de Passe</span>
+            <div class="copy-wrapper">
+                <b id="resPass" class="value-text" style="color: var(--obs-red);"></b>
+                <button type="button" class="copy-icon-btn" onclick="copyText()" title="Copier le mot de passe">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="help-section">
+            <p style="font-size:0.8em; font-weight:bold; margin-bottom:10px">Où se connecter ?</p>
+            <div class="os-selector">
+                <div class="os-btn" id="btnWin" onclick="showHelp('win')">🖥️ Windows</div>
+                <div class="os-btn" id="btnMac" onclick="showHelp('mac')">💻 MacBook</div>
+            </div>
+
+            <div id="guideWin" class="os-guide">
+                Regardez en <b>bas à droite</b> de votre écran.
+                <img src="unnamed.jpeg" alt="Aide Windows">
+            </div>
+
+            <div id="guideMac" class="os-guide">
+                Regardez en <b>haut à droite</b> (Centre de contrôle).
+                <img src="macos help.png" alt="Aide Mac">
+            </div>
         </div>
         
-        <span class="label-small">Réseau (SSID)</span>
-        <span class="val" id="resBox">---</span>
-
-        <span class="label-small">Clé de sécurité</span>
-        <span class="val" id="resPass" style="color: #c61d23;">---</span>
-
-        <div class="rights-grid">
-            <span>Imprimante: <span id="resImp"></span></span>
-            <span>Cloud: <span id="resCloud"></span></span>
-        </div>
-        
-        <button onclick="window.location.reload()" style="background:#444; font-size: 11px; margin-top: 25px;">Nouvelle recherche</button>
+        <button onclick="window.location.reload()" style="background:#444; font-size:11px; margin-top:20px">Nouvelle recherche</button>
     </div>
 </div>
 
 <script>
+    // BASE DE DONNEES MISE À JOUR
+    const networkDb = {
+        'v10': { key: 'Vlan10', ssid: 'Box-Administratif-OBS', pass: 'MJRK-2023-2026@' },
+        'v20': { key: 'Vlan20', ssid: 'Box-Étudiant-OBS', pass: 'OBS100reussiteen2024' },
+        'v30': { key: 'Vlan30', ssid: 'Box-local-bs', pass: 'LOBS-team-26' }
+    };
+
+    let attempts = 0;
+
+    function checkLock() {
+        const lockUntil = localStorage.getItem('obs_lock_until');
+        if (lockUntil && Date.now() < lockUntil) {
+            const timeLeft = Math.ceil((lockUntil - Date.now()) / 60000);
+            document.getElementById('authArea').style.display = 'none';
+            document.getElementById('lockMsg').style.display = 'block';
+            document.getElementById('lockMsg').innerHTML = `Accès temporairement bloqué.<br>Réessayez dans ${timeLeft} min.`;
+            return true;
+        }
+        return false;
+    }
+
+    function showHelp(os) {
+        document.getElementById('guideWin').style.display = 'none';
+        document.getElementById('guideMac').style.display = 'none';
+        document.getElementById('btnWin').classList.remove('active');
+        document.getElementById('btnMac').classList.remove('active');
+        if(os === 'win') {
+            document.getElementById('guideWin').style.display = 'block';
+            document.getElementById('btnWin').classList.add('active');
+        } else {
+            document.getElementById('guideMac').style.display = 'block';
+            document.getElementById('btnMac').classList.add('active');
+        }
+    }
+
+    function toggleVisibility() {
+        const input = document.getElementById('catPass');
+        const eye = document.getElementById('eyeIcon');
+        if (input.type === "password") {
+            input.type = "text";
+            eye.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            input.type = "password";
+            eye.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+
+    function copyText() {
+        const text = document.getElementById('resPass').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("✅ Mot de passe copié !");
+        });
+    }
+
     document.getElementById('obsSecureForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
+        if (checkLock()) return;
+
         const selection = document.getElementById('userType').value;
-        const codeSaisi = document.getElementById('catPass').value.trim();
-        const error = document.getElementById('errorMsg');
-
-        // Base de données
-        const networkDb = {
-            'v10_compta': { key: 'Vlan10', ssid: 'Box_direction', pass: 'OBSdepuis2024', vlan: 'VLAN 10', p: '✅', c: '✅' },
-            'v10_admin':   { key: 'Vlan10', ssid: 'Box_direction', pass: 'OBSdepuis2024', vlan: 'VLAN 10', p: '✅', c: '✅' },
-            'v10_prof':    { key: 'Vlan10', ssid: 'Box_direction', pass: 'OBSdepuis2024', vlan: 'VLAN 10', p: '✅', c: '✅' },
-            'v20':         { key: 'Vlan20', ssid: 'Box_élèves', pass: 'OBS100reussiteen2024', vlan: 'VLAN 20', p: '❌', c: '✅' },
-            'v30':         { key: 'Vlan30', ssid: 'box_locataire', pass: 'Colocobs26', vlan: 'VLAN 30', p: '❌', c: '❌' }
-        };
-
+        const inputKey = document.getElementById('catPass').value.trim();
         const config = networkDb[selection];
 
-        if (config && codeSaisi === config.key) {
-            error.style.display = 'none';
+        if (config && inputKey === config.key) {
+            attempts = 0;
+            localStorage.removeItem('obs_total_errors');
             document.getElementById('authArea').style.display = 'none';
-            
             document.getElementById('resBox').innerText = config.ssid;
             document.getElementById('resPass').innerText = config.pass;
-            document.getElementById('vlanTag').innerText = config.vlan;
-            document.getElementById('resImp').innerText = config.p;
-            document.getElementById('resCloud').innerText = config.c;
-            
             document.getElementById('wifiCard').style.display = 'block';
         } else {
-            error.style.display = 'block';
+            attempts++;
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.style.display = 'block';
+            errorDiv.innerText = `⚠️ Code incorrect (${attempts}/3)`;
+
+            if (attempts >= 3) {
+                const totalErrors = parseInt(localStorage.getItem('obs_total_errors') || 0) + 1;
+                localStorage.setItem('obs_total_errors', totalErrors);
+                const lockDuration = totalErrors > 1 ? 10 * 60000 : 5 * 60000;
+                localStorage.setItem('obs_lock_until', Date.now() + lockDuration);
+                checkLock();
+            }
         }
     });
+
+    checkLock();
 </script>
 
 </body>
