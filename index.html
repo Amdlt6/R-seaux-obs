@@ -59,9 +59,9 @@
                 <label>Votre Catégorie</label>
                 <select id="userType" required>
                     <option value="" disabled selected>-- Sélectionner --</option>
-                    <option value="v10">Administratif / Comptabilité</option>
-                    <option value="v20">Étudiant</option>
-                    <option value="v30">Locataire</option>
+                    <option value="v10">Administratif / Formateurs</option>
+                    <option value="v20">Étudiants</option>
+                    <option value="v30">Locataires</option>
                 </select>
             </div>
             <div class="input-group">
@@ -116,11 +116,10 @@
 </div>
 
 <script>
-    // BASE DE DONNEES MISE À JOUR SELON TES INSTRUCTIONS
     const networkDb = {
         'v10': { key: 'éducbs', ssid: 'Box-Administratif-OBS', pass: 'MJRK-2023-2026@' },
         'v20': { key: 'obs26', ssid: 'Box-Étudiant-OBS', pass: 'OBS100reussiteen2024' },
-        'v30': { key: 'locbs26', ssid: 'Box-local-bs', pass: 'LOBS-team-26' }
+        'v30': { key: 'locbs26', ssid: 'Box-loca-bs', pass: 'LOBS-team-26' }
     };
 
     let attempts = 0;
