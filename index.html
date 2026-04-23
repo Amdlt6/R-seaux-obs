@@ -4,48 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portail Sécurisé OBS</title>
-    
     <link rel="icon" type="image/jpeg" href="images.jpeg">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
         :root { --obs-red: #c61d23; --dark: #1a1a1a; --gray: #f4f4f9; --icon-color: #666; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--gray); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        
         .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
         .logo { max-width: 130px; margin-bottom: 20px; }
-        
         .input-group { position: relative; text-align: left; margin-bottom: 15px; }
         label { display: block; font-size: 0.85em; font-weight: bold; color: #444; margin-bottom: 5px; }
         input, select, button { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 15px; box-sizing: border-box; }
-        input#catPass { padding-right: 45px; }
-        
         button { background: var(--obs-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         button:hover { background: #a5181d; transform: translateY(-1px); }
-
-        .toggle-pass { position: absolute; right: 12px; top: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--icon-color); z-index: 10; }
-        .toggle-pass svg { width: 20px; height: 20px; }
-
+        .toggle-pass { position: absolute; right: 12px; top: 38px; cursor: pointer; display: flex; color: var(--icon-color); }
         #wifiCard { display: none; margin-top: 20px; padding: 25px; border: 2px solid var(--obs-red); border-radius: 15px; text-align: left; animation: fadeIn 0.4s; }
         .wifi-row { margin-bottom: 15px; }
         .label-small { color: #888; text-transform: uppercase; font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px; }
-        .value-text { font-family: 'Monaco', 'Consolas', monospace; color: var(--dark); font-size: 1.1em; }
-        
+        .value-text { font-family: monospace; color: var(--dark); font-size: 1.1em; }
         .copy-wrapper { display: flex; align-items: center; gap: 10px; }
         .copy-icon-btn { background: none; border: none; padding: 5px; cursor: pointer; color: var(--icon-color); display: flex; width: auto; margin: 0; }
-        .copy-icon-btn:hover { color: var(--obs-red); transform: scale(1.1); }
-
-        .help-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-        .os-selector { display: flex; justify-content: space-around; margin-bottom: 15px; gap: 10px; }
-        .os-btn { background: #eee; color: #333; padding: 10px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 1px solid transparent; width: 50%; text-align: center; font-weight: bold; }
-        .os-btn.active { border-color: var(--obs-red); background: #fff5f5; color: var(--obs-red); }
-        
-        .os-guide { display: none; text-align: center; background: #fafafa; padding: 10px; border-radius: 10px; font-size: 0.85em; }
+        .os-guide { display: none; text-align: center; background: #fafafa; padding: 10px; border-radius: 10px; font-size: 0.85em; margin-top: 10px; }
         .os-guide img { width: 100%; border-radius: 5px; margin-top: 8px; border: 1px solid #ddd; }
-
         #errorMsg { color: var(--obs-red); font-size: 0.85em; display: none; padding: 10px; font-weight: bold; background: #fff5f5; border-radius: 8px; margin-bottom: 10px; }
-        #lockMsg { color: #721c24; background: #f8d7da; border-radius: 10px; padding: 15px; display: none; margin-bottom: 15px; font-weight: bold; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -53,8 +34,6 @@
 
 <div class="container">
     <img src="images.jpeg" alt="Logo OBS" class="logo">
-    <div id="lockMsg"></div>
-
     <div id="authArea">
         <h2>Portail Wi-Fi</h2>
         <div id="errorMsg"></div>
@@ -71,9 +50,7 @@
             <div class="input-group">
                 <label>Code d'accès catégorie</label>
                 <input type="password" id="catPass" placeholder="Entrez le code" required>
-                <span class="toggle-pass" onclick="toggleVisibility()">
-                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </span>
+                <span class="toggle-pass" onclick="toggleVisibility()">👁️</span>
             </div>
             <button type="submit">Afficher les accès Wi-Fi</button>
         </form>
@@ -81,33 +58,12 @@
 
     <div id="wifiCard">
         <div style="font-weight:bold; color:var(--obs-red); margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:5px">VOS ACCÈS</div>
-        <div class="wifi-row">
-            <span class="label-small">Nom du Réseau (SSID)</span>
-            <b id="resBox" class="value-text"></b>
-        </div>
+        <div class="wifi-row"><span class="label-small">SSID</span><b id="resBox" class="value-text"></b></div>
         <div class="wifi-row">
             <span class="label-small">Mot de Passe Wi-Fi</span>
             <div class="copy-wrapper">
                 <b id="resPass" class="value-text" style="color: var(--obs-red);"></b>
-                <button type="button" class="copy-icon-btn" onclick="copyText()" title="Copier">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="help-section">
-            <p style="font-size:0.8em; font-weight:bold; margin-bottom:10px">Aide à la connexion :</p>
-            <div class="os-selector">
-                <div class="os-btn" id="btnWin" onclick="showHelp('win')">🖥️ Windows</div>
-                <div class="os-btn" id="btnMac" onclick="showHelp('mac')">💻 MacBook</div>
-            </div>
-            <div id="guideWin" class="os-guide">
-                Icône réseau en <b>bas à droite</b>.
-                <img src="unnamed.jpeg" alt="Aide Windows">
-            </div>
-            <div id="guideMac" class="os-guide">
-                Centre de contrôle en <b>haut à droite</b>.
-                <img src="macos help.png" alt="Aide Mac">
+                <button type="button" class="copy-icon-btn" onclick="copyText()">📋</button>
             </div>
         </div>
         <button onclick="window.location.reload()" style="background:#444; font-size:11px; margin-top:20px">Retour</button>
@@ -115,114 +71,49 @@
 </div>
 
 <script>
-    // BASE DE DONNEES SÉCURISÉE (AES)
-    // Les mots de passe en clair et les clés ne sont plus visibles !
+    // COLLE TES CODES GÉNÉRÉS ICI :
     const networkDb = {
-        'v10': { 
-            ssid: 'Box-Administratif-OBS', 
-            encryptedPass: 'U2FsdGVkX1/qmHK64RdbweiHgVRxP7Ryei/RK90Cs3M=' // À générer avec éducbs
-        },
-        'v20': { 
-            ssid: 'Box-Étudiant-OBS', 
-            encryptedPass: 'U2FsdGVkX19phH3PIhdCz4Zk5503OAUdPJ80kqfPQD0=' // À générer avec obs26
-        },
-        'v30': { 
-            ssid: 'Box-loca-bs', 
-            encryptedPass: 'U2FsdGVkX19t5ykfNve7ZN6v/B/pt5mT8k/QQZq93jM=' // À générer avec locbs26
-        }
+        'U2FsdGVkX18U8iFIysTOSmlz83DJUscMwYBAt2oQAsjvuTRailajr7BFF0XL9OgM': { ssid: 'Box-Administratif-OBS', data: 'U2FsdGVkX1/6npcsLhpToxAe8m/fpo9VEdUlyO+XIy+cJpOmiovcLzPEeVrchW2K' },
+        'U2FsdGVkX1+iwgGkWJWnBU8ceZRJ8lM1SXqs7sIig0k=': { ssid: 'Box-Étudiant-OBS', data: 'U2FsdGVkX193eZQqAHlOWJK0oLhLz2folyXFkUrXMPZk6LuZ3+PP5evWsqAqqZVu' },
+        'U2FsdGVkX18u4eGKWNCP43lSH/0eA7BQrtVncys2HjKx8zIuD1tUzsAaAM/8uqP0': { ssid: 'Box-loca-bs', data: 'U2FsdGVkX1+t3EWHTYMBzVUPxAwg/Za3TenLekQVCsd9QoLHQUFCTENiGcXfA5Sh' }
     };
-
-    let attempts = 0;
-
-    function checkLock() {
-        const lockUntil = localStorage.getItem('obs_lock_until');
-        if (lockUntil && Date.now() < lockUntil) {
-            const timeLeft = Math.ceil((lockUntil - Date.now()) / 60000);
-            document.getElementById('authArea').style.display = 'none';
-            document.getElementById('lockMsg').style.display = 'block';
-            document.getElementById('lockMsg').innerHTML = `Sécurité : Accès bloqué.<br>Réessayez dans ${timeLeft} min.`;
-            return true;
-        }
-        return false;
-    }
-
-    function showHelp(os) {
-        document.getElementById('guideWin').style.display = 'none';
-        document.getElementById('guideMac').style.display = 'none';
-        document.getElementById('btnWin').classList.remove('active');
-        document.getElementById('btnMac').classList.remove('active');
-        if(os === 'win') {
-            document.getElementById('guideWin').style.display = 'block';
-            document.getElementById('btnWin').classList.add('active');
-        } else {
-            document.getElementById('guideMac').style.display = 'block';
-            document.getElementById('btnMac').classList.add('active');
-        }
-    }
 
     function toggleVisibility() {
         const input = document.getElementById('catPass');
-        const eye = document.getElementById('eyeIcon');
-        if (input.type === "password") {
-            input.type = "text";
-            eye.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
-        } else {
-            input.type = "password";
-            eye.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
-        }
+        input.type = input.type === "password" ? "text" : "password";
     }
 
     function copyText() {
-        const text = document.getElementById('resPass').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Copié dans le presse-papier !");
-        });
+        navigator.clipboard.writeText(document.getElementById('resPass').innerText);
+        alert("Copié !");
     }
 
     document.getElementById('obsSecureForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        if (checkLock()) return;
+        const type = document.getElementById('userType').value;
+        const key = document.getElementById('catPass').value.trim();
+        const config = networkDb[type];
 
-        const selection = document.getElementById('userType').value;
-        const inputKey = document.getElementById('catPass').value.trim();
-        const config = networkDb[selection];
+        try {
+            // Tentative de décryptage
+            const bytes = CryptoJS.AES.decrypt(config.data, key);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
 
-        if (config) {
-            try {
-                // TENTATIVE DE DÉCHIFFREMENT AVEC LE CODE TAPÉ PAR L'UTILISATEUR
-                const bytes = CryptoJS.AES.decrypt(config.encryptedPass, inputKey);
-                const originalText = bytes.toString(CryptoJS.enc.Utf8);
-
-                // Si le décryptage réussit et trouve la signature de sécurité
-                if (originalText.startsWith("OBS-SECURE-")) {
-                    const finalWifiPass = originalText.replace("OBS-SECURE-", ""); // On retire la signature
-                    
-                    attempts = 0;
-                    document.getElementById('authArea').style.display = 'none';
-                    document.getElementById('resBox').innerText = config.ssid;
-                    document.getElementById('resPass').innerText = finalWifiPass;
-                    document.getElementById('wifiCard').style.display = 'block';
-                    return; // Succès ! On arrête ici.
-                }
-            } catch(err) {
-                // Échec silencieux du déchiffrement (le code entré est mauvais)
+            // On vérifie si le résultat commence par notre étiquette secrète
+            if (decrypted.startsWith("VALID_OBS_")) {
+                document.getElementById('authArea').style.display = 'none';
+                document.getElementById('resBox').innerText = config.ssid;
+                document.getElementById('resPass').innerText = decrypted.replace("VALID_OBS_", "");
+                document.getElementById('wifiCard').style.display = 'block';
+            } else {
+                throw new Error();
             }
-        }
-
-        // Si on arrive ici, c'est que le code était faux
-        attempts++;
-        const errorDiv = document.getElementById('errorMsg');
-        errorDiv.style.display = 'block';
-        errorDiv.innerText = `⚠️ Code incorrect (${attempts}/3)`;
-
-        if (attempts >= 3) {
-            localStorage.setItem('obs_lock_until', Date.now() + 5 * 60000);
-            checkLock();
+        } catch (e) {
+            const err = document.getElementById('errorMsg');
+            err.style.display = 'block';
+            err.innerText = "⚠️ Code d'accès invalide pour cette catégorie.";
         }
     });
-
-    checkLock();
 </script>
-
 </body>
 </html>
